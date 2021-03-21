@@ -1,0 +1,81 @@
+- name: palybook for hadoop master
+  hosts: namenode
+  tasks:
+          - name: extract software   
+            command:
+                cmd: rpm -ivh hadoop-1.2.1-1.x86_64.rpm --force
+
+          - name: extract jdk jva
+            command:
+                 cmd: rpm -ivh jdk-8u171-linux-x64.rpm  --force      
+       
+          - name: make file
+            file:
+                path: /nn
+                state: directory
+             
+
+          - lineinfile:
+                path: /etc/hadoop/hdfs-site.xml
+                line: '<configuration><property><name>dfs.name.dir</name><value>/nn</value></property>'
+                state: present
+                regexp: '<configuration>'
+                insertafter: '<configuration>'
+            changed_when: True   
+
+
+
+          - lineinfile:
+                path: /etc/hadoop/core-site.xml
+                line: '<configuration><property><name>fs.default.name</name><value>hdfs://0.0.0.0:9001</value></property>'
+                state: present
+                regexp: '<configuration>'
+                insertafter: '<configuration>'
+            changed_when: True
+
+          - name: format hadoop namenode 
+            shell: "echo Y | hadoop namenode -format"
+            
+          - name: start hadoop Namenode service
+            shell: "hadoop-daemon.sh start namenode"
+
+   
+
+- name: palybook for hadoop datanode
+  hosts: datanode
+  tasks:
+          - name: extract software   
+            command:
+                cmd: rpm -ivh hadoop-1.2.1-1.x86_64.rpm --force
+
+          - name: extract jdk jva
+            command:
+                 cmd: rpm -ivh jdk-8u171-linux-x64.rpm  --force      
+       
+          - name: make file
+            file:
+                path: /dn1
+                state: directory
+             
+
+          - lineinfile:
+                path: /etc/hadoop/hdfs-site.xml
+                line: '<configuration><property><name>dfs.name.dir</name><value>/dn1</value></property>'
+                state: present
+                regexp: '<configuration>'
+                insertafter: '<configuration>'
+            changed_when: True   
+
+
+
+          - lineinfile:
+                path: /etc/hadoop/core-site.xml
+                line: '<configuration><property><name>fs.default.name</name><value>hdfs://192.168.43.4:9001</value></property>'
+                state: present
+                regexp: '<configuration>'
+                insertafter: '<configuration>'
+            changed_when: True
+
+  
+          - name: start hadoop datanode service
+            shell: "hadoop-daemon.sh start datanode"
